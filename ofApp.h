@@ -25,6 +25,16 @@ class ofApp : public ofBaseApp{
 		ofEasyCam cam;
 		ofVboMesh mesh;
 
+		int m_size;
+		int m_perUnit;
+		int m_checks;
+
+		double m_bestFitness;
+
 	private:
 		double function(double * coords, unsigned int dim);
+
+		void createColors(unsigned int exp);
+
+		void createVertices();
 };

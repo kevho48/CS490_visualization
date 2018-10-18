@@ -1,7 +1,5 @@
 #include "ofApp.h"
 
-#include <random>
-
 #include <vector>
 
 #include <iostream>
@@ -25,128 +23,75 @@ double ofApp::function(double * coords, unsigned int dim)
 	return result;
 }
 
-void ofApp::createVertices()
-{
-	mesh.clearVertices();
-
-	unsigned int pointCount = m_checks * m_checks * m_checks;
-
-	std::random_device device;
-	std::uniform_real_distribution<double> distribution(-8.0, 8.0);
-
-	for(unsigned int index = 0; index < pointCount; ++index)
-	{
-		double x = distribution(device);
-		double y = distribution(device);
-		double z = distribution(device);
-
-		double coord [] {x,y,z};
-
-		double fitness = function(coord, 3);
-		
-		ofVec3f point(x,y,z);
-		mesh.addVertex(point);
-
-		if(fitness > m_bestFitness)
-		{
-			m_bestFitness = fitness;
-		}
-	}
-}
-
-void ofApp::createColors(unsigned int exp)
-{
-	mesh.clearColors();
-
-	// Create Colors
-	for(int z = 0; z < m_checks; ++z)
-	{
-		// the z position of the current vertex
-		double currentZ = ((double)z / (double)m_perUnit) - ((double)m_size / 2.0);
-
-		for(int y = 0; y < m_checks; ++y)
-		{
-				double currentY = ((double)y / (double)m_perUnit) - ((double)m_size / 2.0);
-
-			for(int x = 0; x < m_checks; ++x)
-			{
-				// the x position of the current vertex
-				double currentX = ((double)x / (double)m_perUnit) - ((double)m_size / 2.0);
-				
-				double coord [] = {currentX, currentY, currentZ};
-
-				double fitness = function(coord, 3);
-
-				double closeness = (fitness / m_bestFitness);
-
-				for(unsigned int i = 0; i < exp; ++i)
-				{
-					closeness *= closeness;
-				}
-
-				// 255 0   0   0
-				// 255 255 255 255
-
-				int r = 255;
-				int g = 255.0 * closeness;
-				int b = 255.0 * closeness;;
-				int a = 255.0 * closeness; 
-
-				mesh.addColor(ofColor(r,g,b,a));
-			}
-		}
-	}
-}
-
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-	m_bestFitness = -DBL_MAX;
-
 	ofEnableDepthTest();
 
 	// size is from -8 to 8
-	m_size = 16;
+	const int size = 16;
 	// how many vertices per 1 unit
-	m_perUnit = 8;
+	const int perUnit = 5;
 	// square root of the number of vertices
-	m_checks = m_perUnit * m_size;
+	const int checks = perUnit * size;
 
 	// Create Verticies
-	for(int z = 0; z < m_checks; ++z)
+	for(int z = 0; z < checks; ++z)
 	{
 		// the z position of the current vertex
-		double currentZ = ((double)z / (double)m_perUnit) - ((double)m_size / 2.0);
+		double currentZ = ((double)z / (double)perUnit) - ((double)size / 2.0);
 
-		for(int y = 0; y < m_checks; ++y)
+		for(int x = 0; x < checks; ++x)
 		{
-				double currentY = ((double)y / (double)m_perUnit) - ((double)m_size / 2.0);
+			// the x position of the current vertex
+			double currentX = ((double)x / (double)perUnit) - ((double)size / 2.0);
 
-			for(int x = 0; x < m_checks; ++x)
-			{
-				// the x position of the current vertex
-				double currentX = ((double)x / (double)m_perUnit) - ((double)m_size / 2.0);
+			// pass in these coordinates to the fitness function to get the y position
+			double coord [] = {currentX, currentZ};
 
-				// pass in these coordinates to the fitness function to get the y position
-				double coord [] = {currentX, currentY, currentZ};
-
-				// the y position of the current vertex
-				double fitness = function(coord, 3);
+			// the y position of the current vertex
+			double currentY = function(coord, 2);
 			
-				ofVec3f point(currentX, currentY, currentZ);
-				mesh.addVertex(point);
-
-				if(fitness > m_bestFitness)
-				{
-					m_bestFitness = fitness;
-				}
-			}
+			ofVec3f point(currentX, currentY, currentZ);
+			mesh.addVertex(point);
 		}
 	}
 
-	createVertices();
+	// Create indices
 
-	createColors(0);	
+	for(unsigned int y = 0; y < checks - 1; ++y)
+	{
+		for(unsigned int x = 0; x < checks; ++x)
+		{
+			unsigned int current = x + checks * y;
+			unsigned int below = x + checks * (y + 1);
+			unsigned int left = (x - 1) + checks * y;
+			unsigned int belowRight = (x + 1) + checks * (y + 1);
+
+			if(x == 0)
+			{
+				mesh.addIndex(current);
+				mesh.addIndex(below);
+				mesh.addIndex(belowRight);	
+			}
+			else if(x == checks - 1)
+			{
+				mesh.addIndex(current);
+				mesh.addIndex(left);
+				mesh.addIndex(below);
+			}
+			else
+			{
+				mesh.addIndex(current);
+				mesh.addIndex(below);
+				mesh.addIndex(belowRight);
+				
+				mesh.addIndex(current);
+				mesh.addIndex(left);
+				mesh.addIndex(below);
+			}
+		}
+	}
 
 	// Initialize the camera closer to our graph
 	cam.setTarget(glm::vec3(0.0f,-5.0f,0.0f));
@@ -166,12 +111,9 @@ void ofApp::draw(){
 	cam.begin();
 
 	mesh.enableColors();
-	mesh.drawVertices();
+	ofSetColor(255,255,255);
+	mesh.drawWireframe();
 	mesh.disableColors();
-
-	ofSetColor(255,0,0);
-
-	ofDrawSphere(1.0167,-2.0078,3.0347,0.25);
 
 	cam.end();
 }
@@ -179,7 +121,6 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-	createColors(key - '0');
 }
 
 //--------------------------------------------------------------

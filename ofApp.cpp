@@ -22,7 +22,6 @@ double ofApp::function(double * coords, unsigned int dim)
 	return result;
 }
 
-//--------------------------------------------------------------
 void ofApp::setup()
 {
 	ofEnableDepthTest();
@@ -37,8 +36,6 @@ void ofApp::setup()
 	const float width = 0.5f;
 	//random number generator
 	domain = std::uniform_real_distribution<double>(MINIMUM,MAXIMUM);
-
-	
 
 	// Create Verticies
 	for(int z = 0; z < checks; ++z)

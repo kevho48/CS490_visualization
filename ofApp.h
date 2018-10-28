@@ -31,6 +31,7 @@ class ofApp : public ofBaseApp{
 		ofVboMesh mesh;
 		ofSpherePrimitive sphere;
 		bacteria visual;
+		cell_t best;
 		std::default_random_engine gen;
 		std::uniform_real_distribution<double> domain;
 

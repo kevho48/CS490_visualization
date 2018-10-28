@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "ofNode.h"
-#include "bacteria.h"
+#include "bacteria.hpp"
 #include <vector>
 #include <random>
 #include <iostream>
@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp{
 		ofEasyCam cam;
 		ofVboMesh mesh;
 		ofSpherePrimitive sphere;
+		bacteria visual;
 		std::default_random_engine gen;
 		std::uniform_real_distribution<double> domain;
 

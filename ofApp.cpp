@@ -98,6 +98,7 @@ void ofApp::setup()
 	//create spheres
 	sphere.setRadius(width);
 
+
 	// Initialize the camera closer to our graph
 	cam.setTarget(glm::vec3(0.0f,-5.0f,0.0f));
 	cam.setDistance(20.0f);
@@ -128,7 +129,6 @@ void ofApp::draw(){
 	double randY = function(random, 2);
 
 	sphere.setPosition(randX, randY, randZ);
-
 
     sphere.draw();
 
